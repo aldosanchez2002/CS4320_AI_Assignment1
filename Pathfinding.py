@@ -50,9 +50,7 @@ class Node:
         return self.row == other.row and self.cost == other.cost and self.column == other.column
     
     def __hash__(self) -> int:
-        if self.parent:
-            return hash(frozenset(((self.row, self.column), (self.parent.row, self.parent.column))))
-        return hash(frozenset(((),(self.row, self.column))))
+        return hash((self.row, self.column, self.cost))
 
 def readMap(filename):
     '''
@@ -92,15 +90,14 @@ def BreadthFirstSearch(map, start, goal, seen = set()):
     while unvisited_neighbors:
         node = unvisited_neighbors.pop(0)
         seen.add(node)                 
-        print("coordinate", node.row, node.column, "Running cost", node.cost, "Map Cost", map[node.row][node.column])
+        # print("coordinate", node.row, node.column, "Running cost", node.cost, "Map Cost", map[node.row][node.column])
         if node.onCoordinate(goal[0], goal[1]):
             if node.cost < bestSolutionCost:
                 bestSolutionNode = node
                 bestSolutionCost = node.cost
-
         neighbors = node.getNeighbors(map)
         for neighbor in neighbors:
-            if neighbor not in seen:
+            if neighbor not in seen and neighbor.cost < bestSolutionCost:
                 unvisited_neighbors.append(neighbor)
                 neighbor
         max_nodes_memory = max(max_nodes_memory, len(unvisited_neighbors) + len(seen))
@@ -176,7 +173,7 @@ if __name__ == '__main__':
 
     print("\nBreadth First Search: ")
     print_algorithm_output(BreadthFirstSearch(map, start, goal))
-
+    sys.exit(0)
     print("\nIterative Deepening Search: ")
     print_algorithm_output(IterativeDeepeningSearch(map, start, goal))
 
