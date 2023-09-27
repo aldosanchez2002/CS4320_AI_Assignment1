@@ -79,7 +79,7 @@ if __name__ == '__main__':
     if len(sys.argv) != 2:
         print("Usage: python Pathfinding.py <map_file>")
         sys.exit(1)
-    testCases = [(5,5), (10,10), (15,15),(20,20), (100,100), (5000,5000), (5,10)]
+    testCases = [(5,5), (10,10), (15,15),(20,20), (100,100), (5,10)]
     for width,height in testCases:
         GenerateTestCase(width,height)
     # start, goal, map = readMap(sys.argv[1])
