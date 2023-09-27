@@ -79,14 +79,15 @@ if __name__ == '__main__':
     if len(sys.argv) != 2:
         print("Usage: python Pathfinding.py <map_file>")
         sys.exit(1)
-    testCases = [(5,5), (10,10), (15,15),(20,20), (100,100), (5,10)]
-    for width,height in testCases:
-        GenerateTestCase(width,height)
-    # start, goal, map = readMap(sys.argv[1])
-    # print("\nBreadth First Search: ")
-    # print_algorithm_output(BreadthFirstSearch(map, start, goal))
-    # print("\nIterative Deepening Search: ")
-    # print_algorithm_output(IterativeDeepeningSearch(map, start, goal))
-    # print("\nA* Search: ")
-    # print_algorithm_output(AStarSearch(map, start, goal, ManhattanHeuristic))
+    #generate test cases
+    # testCases = [(5,5), (10,10), (15,15),(20,20), (100,100), (5,10)]
+    # for width,height in testCases:
+    #     GenerateTestCase(width,height)
+    start, goal, map = readMap(sys.argv[1])
+    print("\nBreadth First Search: ")
+    print_algorithm_output(BreadthFirstSearch(map, start, goal))
+    print("\nIterative Deepening Search: ")
+    print_algorithm_output(IterativeDeepeningSearch(map, start, goal))
+    print("\nA* Search: ")
+    print_algorithm_output(AStarSearch(map, start, goal, ManhattanHeuristic))
 
