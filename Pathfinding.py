@@ -3,7 +3,7 @@ Pathfinding Assignemnt 1 for CS 4320
 Fall 2023
 Lianna Estrada
 Aldo Sanchez
-David LASTNAME
+David Dominguez
 
 Each pathfinding algorithm should return a tuple containing the following:
     1) Cost of the path
