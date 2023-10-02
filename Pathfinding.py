@@ -177,9 +177,41 @@ if __name__ == '__main__':
     #         GenerateTestCase(width,height)
     #     sys.exit(0)
 
-    #Run Algorithms
+    # Run Algorithms
     # start, goal, map = readMap(sys.argv[1])
+    print("*********************** 5x5 output ********************")
+    start, goal, map = readMap("Testcases/Map5x5.txt")
+
+    print("\nBreadth First Search: ")
+    print_algorithm_output(BreadthFirstSearch(map, start, goal))
+
+    print("*********************** 5x10 output ********************")
+    start, goal, map = readMap("Testcases/Map5x10.txt")
+
+    print("\nBreadth First Search: ")
+    print_algorithm_output(BreadthFirstSearch(map, start, goal))
+
+    print("*********************** 10x10 output ********************")
+
+    start, goal, map = readMap("Testcases/Map10x10.txt")
+
+    print("\nBreadth First Search: ")
+    print_algorithm_output(BreadthFirstSearch(map, start, goal))
+
+    print("*********************** 15x15 output ********************")
+    start, goal, map = readMap("Testcases/Map15x15.txt")
+
+    print("\nBreadth First Search: ")
+    print_algorithm_output(BreadthFirstSearch(map, start, goal))
+
+    print("*********************** 20x20 output ********************")
     start, goal, map = readMap("Testcases/Map20x20.txt")
+
+    print("\nBreadth First Search: ")
+    print_algorithm_output(BreadthFirstSearch(map, start, goal))
+
+    print("*********************** 100x100 output ********************")
+    start, goal, map = readMap("Testcases/Map100x100.txt")
 
     print("\nBreadth First Search: ")
     print_algorithm_output(BreadthFirstSearch(map, start, goal))
