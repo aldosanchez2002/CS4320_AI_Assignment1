@@ -221,4 +221,3 @@ if __name__ == '__main__':
 
     print("\nA* Search: ")
     print_algorithm_output(AStarSearch(map, start, goal, ManhattanHeuristic))
-
