@@ -86,8 +86,9 @@ def BreadthFirstSearch(map, start, goal, seen = set()):
         )
     seen = set()    #seen will hold the explored nodes
     unvisited_neighbors = [startNode]
-
+    count = 0
     while unvisited_neighbors:
+        count +=1
         node = unvisited_neighbors.pop(0)
         seen.add(node)                 
         # print("coordinate", node.row, node.column, "Running cost", node.cost, "Map Cost", map[node.row][node.column])
@@ -101,6 +102,13 @@ def BreadthFirstSearch(map, start, goal, seen = set()):
                 unvisited_neighbors.append(neighbor)
                 neighbor
         max_nodes_memory = max(max_nodes_memory, len(unvisited_neighbors) + len(seen))
+        # rudimentary method of sporadically checking if the runtime is greater than 3 min
+        if count%10000 == 0:
+            runtime = (time.time() - start_time)
+            if runtime >= 180:
+                bestSolutionNode = None
+                break
+
 
     nodes_expanded = len(seen)
     runtime = (time.time() - start_time) * 1000
@@ -138,6 +146,7 @@ def print_algorithm_output(algorithm_output):
 
 def GenerateTestCase(width,height):
     map = []
+    dimensions = (height, width)
     for i in range(height):
         row = []
         for j in range(width):
@@ -147,14 +156,15 @@ def GenerateTestCase(width,height):
     goal = start
     while start == goal:
         goal = (random.randint(0,height-1),random.randint(0,width-1))
-    def saveTestCase(start,goal,map, filename):
+    def saveTestCase(dimensions,start,goal,map, filename):
         with open(filename, "w") as file:
-            file.write("".join(str(x) for x in start) + "\n")
-            file.write("".join(str(x) for x in goal) + "\n")
+            file.write(" ".join(str(x) for x in dimensions) + "\n")
+            file.write(" ".join(str(x) for x in start) + "\n")
+            file.write(" ".join(str(x) for x in goal) + "\n")
             for row in map:
                     file.write(" ".join(str(x) for x in row))
                     file.write("\n")
-    saveTestCase(start,goal,map,"Map"+str(width)+"x"+str(height)+".txt")
+    saveTestCase(dimensions,start,goal,map,"Map"+str(width)+"x"+str(height)+".txt")
 
 if __name__ == '__main__':
     # if len(sys.argv) != 2:
@@ -167,9 +177,41 @@ if __name__ == '__main__':
     #         GenerateTestCase(width,height)
     #     sys.exit(0)
 
-    #Run Algorithms
+    # Run Algorithms
     # start, goal, map = readMap(sys.argv[1])
-    start, goal, map = readMap("Testcases/Map3x3.txt")
+    print("*********************** 5x5 output ********************")
+    start, goal, map = readMap("Testcases/Map5x5.txt")
+
+    print("\nBreadth First Search: ")
+    print_algorithm_output(BreadthFirstSearch(map, start, goal))
+
+    print("*********************** 5x10 output ********************")
+    start, goal, map = readMap("Testcases/Map5x10.txt")
+
+    print("\nBreadth First Search: ")
+    print_algorithm_output(BreadthFirstSearch(map, start, goal))
+
+    print("*********************** 10x10 output ********************")
+
+    start, goal, map = readMap("Testcases/Map10x10.txt")
+
+    print("\nBreadth First Search: ")
+    print_algorithm_output(BreadthFirstSearch(map, start, goal))
+
+    print("*********************** 15x15 output ********************")
+    start, goal, map = readMap("Testcases/Map15x15.txt")
+
+    print("\nBreadth First Search: ")
+    print_algorithm_output(BreadthFirstSearch(map, start, goal))
+
+    print("*********************** 20x20 output ********************")
+    start, goal, map = readMap("Testcases/Map20x20.txt")
+
+    print("\nBreadth First Search: ")
+    print_algorithm_output(BreadthFirstSearch(map, start, goal))
+
+    print("*********************** 100x100 output ********************")
+    start, goal, map = readMap("Testcases/Map100x100.txt")
 
     print("\nBreadth First Search: ")
     print_algorithm_output(BreadthFirstSearch(map, start, goal))
@@ -179,4 +221,3 @@ if __name__ == '__main__':
 
     print("\nA* Search: ")
     print_algorithm_output(AStarSearch(map, start, goal, ManhattanHeuristic))
-
