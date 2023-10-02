@@ -20,24 +20,21 @@ import random
 
 class Node:
     def __init__(self, cur_cord, cost_so_far, cur_map, history=[]):
-
         self.cur_cord = cur_cord
         self.cost_so_far = cost_so_far
         self.cur_map = cur_map
         self.history = history + [str(cur_cord)]
 
     def getNeighbors(self):
+        neighbors=[]
         next_map = self.cur_map.copy()
         next_map[self.cur_cord[0]][self.cur_cord[1]] = 0
 
-        neighbors=[]
         for i,j in [(0,1),(0,-1),(1,0),(-1,0)]:  # right left down up
-
             neighborRow = self.cur_cord[0] + i
             neighborColumn = self.cur_cord[1] + j
 
             if  0 <= neighborRow < len(next_map) and 0 <= neighborColumn < len(next_map[0]):
-
                 mapcost = next_map[neighborRow][neighborColumn]
                 if mapcost != 0:
                     neighbors.append(Node((neighborRow, neighborColumn), self.cost_so_far+mapcost, next_map, self.history)) # parent is self
@@ -136,9 +133,9 @@ def print_algorithm_output(algorithm_output):
 
 def GenerateTestCase(rows, cols):
     map = []
-    for i in range(rows):
+    for _ in range(rows):
         row = []
-        for j in range(cols):
+        for _ in range(cols):
             row.append(random.randint(0,5))
         map.append(row)
     start = (random.randint(0,rows-1),random.randint(0,cols-1))
@@ -168,6 +165,13 @@ if __name__ == '__main__':
 
     #Run Algorithms
     # start, goal, map = readMap(sys.argv[1])
+
+    print("*********************** Instructions output ********************")
+    start, goal, map = readMap("Testcases/InstructionsMap.txt")
+
+    print("\nBreadth First Search: ")
+    print_algorithm_output(BreadthFirstSearch(map, start, goal))
+
     print("*********************** 5x5 output ********************")
     start, goal, map = readMap("Testcases/Map5x5.txt")
 
@@ -187,6 +191,7 @@ if __name__ == '__main__':
     print("\nBreadth First Search: ")
     print_algorithm_output(BreadthFirstSearch(map, start, goal))
 
+    '''
     print("*********************** 15x15 output ********************")
     start, goal, map = readMap("Testcases/Map15x15.txt")
 
@@ -204,7 +209,10 @@ if __name__ == '__main__':
 
     print("\nBreadth First Search: ")
     print_algorithm_output(BreadthFirstSearch(map, start, goal))
+
+    '''
     sys.exit(0)
+    
     print("\nIterative Deepening Search: ")
     print_algorithm_output(IterativeDeepeningSearch(map, start, goal))
 
