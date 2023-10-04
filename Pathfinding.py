@@ -17,6 +17,8 @@ Each pathfinding algorithm should return a tuple containing the following:
 import sys
 import time
 import random
+from pathlib import Path
+
 
 class Node:
     def __init__(self, parent, row, column, cost):
@@ -42,6 +44,11 @@ class Node:
         if not self.parent:
             return curCoord
         return self.parent.getPath(start) + curCoord
+    def getDepth(self, depth=0):
+        if not self.parent:
+            return depth
+        return self.parent.getDepth(depth+1)
+
     
     def onCoordinate(self, row, column):
         return self.row == row and self.column == column
@@ -113,6 +120,7 @@ def BreadthFirstSearch(map, start, goal, seen = set()):
     nodes_expanded = len(seen)
     runtime = (time.time() - start_time) * 1000
     if bestSolutionNode:
+        print(bestSolutionNode.getDepth())
         return bestSolutionCost, nodes_expanded, max_nodes_memory, runtime, bestSolutionNode.getPath(start)
     
     # no solution found - should not run
@@ -122,6 +130,13 @@ def IterativeDeepeningSearch(map, start, goal):
     '''
     This method implements the iterative deepening search algorithm
     '''
+
+    def DepthLimitedSearch(map, current, goal, limit=0):
+        if current == goal: return True
+        return False
+
+
+
     pass
 
 def ManhattanHeuristic(map, current, goal):
@@ -167,51 +182,56 @@ def GenerateTestCase(width,height):
     saveTestCase(dimensions,start,goal,map,"Map"+str(width)+"x"+str(height)+".txt")
 
 if __name__ == '__main__':
-    # if len(sys.argv) != 2:
-    #     print("Usage: python Pathfinding.py <map_file>")
-    #     sys.exit(1)
-    # #generate test cases, run once and comment out
-    # if sys.argv[1] == "-G":
-    #     testCases = [(5,5), (10,10), (15,15),(20,20), (100,100), (5,10)]
-    #     for width,height in testCases:
-    #         GenerateTestCase(width,height)
-    #     sys.exit(0)
+    if len(sys.argv) != 2:
+        print("Usage: python Pathfinding.py <map_file>")
+        sys.exit(1)
+    #generate test cases, run once and comment out
+    if sys.argv[1] == "-G":
+        testCases = [(5,5), (10,10), (15,15),(20,20), (100,100), (5,10)]
+        for width,height in testCases:
+            GenerateTestCase(width,height)
+        sys.exit(0)
+    target_dir = Path(sys.argv[1])
 
+    if not target_dir.exists():
+        print("The target test file doesn't exist. Try again")
+        raise SystemExit(1)
+
+    start, goal, map = readMap(target_dir)
     # Run Algorithms
-    # start, goal, map = readMap(sys.argv[1])
-    print("*********************** 5x5 output ********************")
-    start, goal, map = readMap("Testcases/Map5x5.txt")
-
-    print("\nBreadth First Search: ")
-    print_algorithm_output(BreadthFirstSearch(map, start, goal))
-
-    print("*********************** 5x10 output ********************")
-    start, goal, map = readMap("Testcases/Map5x10.txt")
-
-    print("\nBreadth First Search: ")
-    print_algorithm_output(BreadthFirstSearch(map, start, goal))
-
-    print("*********************** 10x10 output ********************")
-
-    start, goal, map = readMap("Testcases/Map10x10.txt")
-
-    print("\nBreadth First Search: ")
-    print_algorithm_output(BreadthFirstSearch(map, start, goal))
-
-    print("*********************** 15x15 output ********************")
-    start, goal, map = readMap("Testcases/Map15x15.txt")
-
-    print("\nBreadth First Search: ")
-    print_algorithm_output(BreadthFirstSearch(map, start, goal))
-
-    print("*********************** 20x20 output ********************")
-    start, goal, map = readMap("Testcases/Map20x20.txt")
-
-    print("\nBreadth First Search: ")
-    print_algorithm_output(BreadthFirstSearch(map, start, goal))
-
-    print("*********************** 100x100 output ********************")
-    start, goal, map = readMap("Testcases/Map100x100.txt")
+    # print("*********************** 5x5 output ********************")
+    # start, goal, map = readMap("Testcases/Map5x5.txt")
+    #
+    # print("\nBreadth First Search: ")
+    # print_algorithm_output(BreadthFirstSearch(map, start, goal))
+    #
+    # print("*********************** 5x10 output ********************")
+    # start, goal, map = readMap("Testcases/Map5x10.txt")
+    #
+    # print("\nBreadth First Search: ")
+    # print_algorithm_output(BreadthFirstSearch(map, start, goal))
+    #
+    # print("*********************** 10x10 output ********************")
+    #
+    # start, goal, map = readMap("Testcases/Map10x10.txt")
+    #
+    # print("\nBreadth First Search: ")
+    # print_algorithm_output(BreadthFirstSearch(map, start, goal))
+    #
+    # print("*********************** 15x15 output ********************")
+    # start, goal, map = readMap("Testcases/Map15x15.txt")
+    #
+    # print("\nBreadth First Search: ")
+    # print_algorithm_output(BreadthFirstSearch(map, start, goal))
+    #
+    # print("*********************** 20x20 output ********************")
+    # start, goal, map = readMap("Testcases/Map20x20.txt")
+    #
+    # print("\nBreadth First Search: ")
+    # print_algorithm_output(BreadthFirstSearch(map, start, goal))
+    #
+    # print("*********************** 100x100 output ********************")
+    # start, goal, map = readMap("Testcases/Map100x100.txt")
 
     print("\nBreadth First Search: ")
     print_algorithm_output(BreadthFirstSearch(map, start, goal))
