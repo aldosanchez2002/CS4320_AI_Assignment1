@@ -1,0 +1,9 @@
+# CS4320 - Programming Assignment 1
+## Group
+- David Dominguez
+- Lianna Estrada
+- Aldo Sanchez
+
+## Usage
+1. In a command line, ensure you are in the 'CS4320_AI_Assignment1' directory
+2. Enter the command 'python3 Pathfinding.py <test-filename>' to run BPS on the file
