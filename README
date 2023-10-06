@@ -6,4 +6,7 @@
 
 ## Usage
 1. In a command line, ensure you are in the 'CS4320_AI_Assignment1' directory
-2. Enter the command 'python3 Pathfinding.py <test-filename>' to run BPS on the file
+2. Enter the command 'python3 Pathfinding.py <test-filename> <search-type>', replacing <search-type> with 'BPS'.
+
+**BPS is the only search currently available. Available types in part 2 will be 'BPS', 'IDS', and 'AStar'
+
