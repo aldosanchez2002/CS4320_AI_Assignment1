@@ -20,6 +20,7 @@ import sys
 import time
 import random
 from pathlib import Path
+from copy import deepcopy
 
 class Node:
     def __init__(self, cur_cord, cost_so_far, cur_map, history=[], heuristic=0):
@@ -128,6 +129,7 @@ def IterativeDeepeningSearch(map, start, goal):
         cost_so_far=map[start[0]][start[1]],
         cur_map=map
     )
+    map_copy = deepcopy(map)
     def DepthLimitedSearch(current, goal, limit):
         if current.isSolution(goal): #return end search when goal is found
             history.append(current)
@@ -139,19 +141,23 @@ def IterativeDeepeningSearch(map, start, goal):
         history.append(current)
         unvisited_neighbors = current.getNeighbors()
         max_nodes_memory[0] = max(max_nodes_memory[0], len(unvisited_neighbors))
-        ''' USED FOR TESTING
-        if limit < 5:
-            # print(f"currentNode={current.cur_cord}")
-            # print(f"currentMap={current.cur_map}")
-        '''
+
+        if limit <= 5:
+            print(f"currentNode={current.cur_cord}")
+            print(f"currentMap={current.cur_map}")
+
         for neighbor in unvisited_neighbors:
-            # print(f"neighborNode={neighbor.cur_cord}") # used for testing
+            print(f"neighborNode={neighbor.cur_cord}") # used for testing
             # check if any of the neighbors are the goal
             if DepthLimitedSearch(neighbor, goal, limit - 1):
                 return True
         return False
     limit = 0
     while time.time() < start_time+180: # while runtime is less than 3 min increase the depth till a solution is found
+        if limit <= 5:
+            print(f"LIMIT={limit}")
+            print(f"OG MAP: \n {map_copy}")
+            startNode.cur_map = deepcopy(map_copy) # attempt at a new solution containing original map
         if DepthLimitedSearch(startNode, goal, limit):
             break
         limit += 1

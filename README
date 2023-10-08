@@ -14,3 +14,6 @@
 Since IDS requires you to do depth first search at the start node for every iteration, setting the value at the
 current node's coordinate to zero when getNeighbors() is called will throw off the whole search.
 This is because the start node and its initial neighbors will all get set to zero within the first couple of iterations.
+
+- 10/08/2023 added a potential solution of giving the start node a new copy of the original map at the start of every iteration.
+Unsure if it'll work in all tests
