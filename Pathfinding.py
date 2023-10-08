@@ -22,34 +22,40 @@ import random
 from pathlib import Path
 from copy import deepcopy
 
+
 class Node:
-    def __init__(self, cur_cord, cost_so_far, cur_map, history=[], heuristic=0):
-        self.cur_cord = cur_cord
+    def __init__(self, location, cost_so_far, cur_map, history=[], heuristic=0):
+        self.location = location
         self.cost_so_far = cost_so_far
         self.cur_map = cur_map
-        self.history = history + [str(cur_cord)] #used to store solution path
+        self.history = history + [str(location)]  # used to store solution path
         self.heuristic = heuristic
 
     def getNeighbors(self):
-        neighbors=[]
-        next_map = self.cur_map.copy()
-        next_map[self.cur_cord[0]][self.cur_cord[1]] = 0
+        neighbors = []
+        next_map = deepcopy(self.cur_map)
+        next_map[self.location[0]][self.location[1]] = 0
 
-        for i,j in [(0,1),(0,-1),(1,0),(-1,0)]:  # get coords that are right, left, down and up
-            neighborRow = self.cur_cord[0] + i
-            neighborColumn = self.cur_cord[1] + j
+        # get coords that are right, left, down and up
+        for i, j in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+            neighborRow = self.location[0] + i
+            neighborColumn = self.location[1] + j
 
-            if  0 <= neighborRow < len(next_map) and 0 <= neighborColumn < len(next_map[0]):
+            if 0 <= neighborRow < len(next_map) and 0 <= neighborColumn < len(next_map[0]):
                 mapcost = next_map[neighborRow][neighborColumn]
-                if mapcost != 0: #neighbor is passable
-                    neighbors.append(Node((neighborRow, neighborColumn), self.cost_so_far+mapcost, next_map, self.history)) # parent is self
+                if mapcost != 0:  # neighbor is passable
+                    neighbors.append(Node((neighborRow, neighborColumn), self.cost_so_far +
+                                     mapcost, next_map, self.history))  # parent is self
         return neighbors
 
     def getPath(self):
         return str(self.history)
 
     def isSolution(self, goal):
-        return self.cur_cord[0] == goal[0] and self.cur_cord[1] == goal[1]
+        return self.location[0] == goal[0] and self.location[1] == goal[1]
+
+    def __str__(self) -> str:
+        return f"LOCATION: {self.location}. MAP, "
 
 def readMap(filename):
     '''
@@ -64,34 +70,35 @@ def readMap(filename):
             map.append([int(x) for x in line.split()])
         return start, goal, map
 
-def BreadthFirstSearch(map, start, goal, seen = set()):
+
+def BreadthFirstSearch(map, start, goal, seen=set()):
     '''
     This method implements the breadth first search algorithm.
     It is modified to look for the least-costly path instead of the first path to the goal.
     '''
-    #nodes_expanded will be derived from the length of the explored nodes set (seen)
-    max_nodes_memory=0
+    # nodes_expanded will be derived from the length of the explored nodes set (seen)
+    max_nodes_memory = 0
     start_time = time.time()
 
     # used to track the best solution path and cost so far
     bestSolutionNode = None
     bestSolutionCost = float('inf')
 
-
     startNode = Node(
-        cur_cord=start,
-        cost_so_far=map[start[0]][start[1]],
+        location=start,
+        cost_so_far=0, # First node is 'free'
         cur_map=map
-        )
+    )
 
-    #will hold the unexplored neighbor nodes
+    # will hold the unexplored neighbor nodes
     unvisited_neighbors = [startNode]
 
-    history = [] # will hold the explored nodes
+    history = []  # will hold the explored nodes
     # break the loop when 3 minutes have passed or there are no more neighbors to visit
     while unvisited_neighbors and time.time() < start_time+180:
         node = unvisited_neighbors.pop(0)
         history.append(node)
+
         if node.isSolution(goal):
             if node.cost_so_far < bestSolutionCost:
                 bestSolutionNode = node
@@ -112,77 +119,72 @@ def BreadthFirstSearch(map, start, goal, seen = set()):
     # no solution found
     return -1, nodes_expanded, max_nodes_memory, runtime, None
 
-def IterativeDeepeningSearch(map, start, goal):
+def IterativeDeepeningSearch(map: list, start, goal):
     '''
     This method implements the iterative deepening search algorithm
     '''
     # nodes_expanded will be derived from the length of the explored nodes set (seen)
     start_time = time.time()
-    max_nodes_memory = [0]
+    max_nodes_memory = 0
     history = []
     # used to track the best solution path and cost so far
-    bestSolutionNode = []
-    bestSolutionCost = [float('inf')]
+    bestSolutionNode = None
+    foundSolution = False
 
-    startNode = Node(
-        cur_cord=start,
-        cost_so_far=map[start[0]][start[1]],
-        cur_map=map
+    start_node = Node(
+        location=start,
+        cost_so_far=0, #first node is free
+        cur_map=deepcopy(map)
     )
-    map_copy = deepcopy(map)
-    def DepthLimitedSearch(current, goal, limit):
-        if current.isSolution(goal): #return end search when goal is found
-            history.append(current)
-            bestSolutionNode.append(current)
-            bestSolutionCost[0] = current.cost_so_far
-            return True
-        if limit <= 0: # we've reached our depth limit
-            return False
-        history.append(current)
-        unvisited_neighbors = current.getNeighbors()
-        max_nodes_memory[0] = max(max_nodes_memory[0], len(unvisited_neighbors))
 
-        if limit <= 5:
-            print(f"currentNode={current.cur_cord}")
-            print(f"currentMap={current.cur_map}")
+    def DepthLimitedSearch(current, goal, limit):
+        if current.isSolution(goal):  # return end search when goal is found
+            return True, current
+
+        if limit < 0:  # we've reached our depth limit
+            return False, None
+        
+        history.append(current)
+        
+        unvisited_neighbors = current.getNeighbors()
 
         for neighbor in unvisited_neighbors:
-            print(f"neighborNode={neighbor.cur_cord}") # used for testing
             # check if any of the neighbors are the goal
-            if DepthLimitedSearch(neighbor, goal, limit - 1):
-                return True
-        return False
+            isSolution, solutionNode = DepthLimitedSearch(neighbor, goal, limit - 1)
+            if(isSolution):
+                return True, solutionNode
+        return False, None
+
+
     limit = 0
-    while time.time() < start_time+180: # while runtime is less than 3 min increase the depth till a solution is found
-        if limit <= 5:
-            print(f"LIMIT={limit}")
-            print(f"OG MAP: \n {map_copy}")
-            startNode.cur_map = deepcopy(map_copy) # attempt at a new solution containing original map
-        if DepthLimitedSearch(startNode, goal, limit):
+    # while runtime is less than 3 min increase the depth till a solution is found
+    while time.time() < start_time+180:
+        foundSolution, bestSolutionNode =  DepthLimitedSearch(start_node, goal, limit)
+        if foundSolution:
             break
         limit += 1
     runtime = (time.time() - start_time) * 1000
     nodes_expanded = len(history)
-    if len(bestSolutionNode) and runtime < 180000:
-        return bestSolutionCost[0], nodes_expanded, max_nodes_memory, runtime, bestSolutionNode[0].getPath()
+    if foundSolution:
+        return bestSolutionNode.cost_so_far, nodes_expanded, len(bestSolutionNode.history), runtime, bestSolutionNode.getPath()
 
-    return -1, nodes_expanded, max_nodes_memory, runtime, None
-
-
+    return -1, nodes_expanded, limit, runtime, None
 
 
 def ManhattanHeuristic(map, current, goal):
     '''
     This method calculates the Manhattan distance heuristic between the current state and the goal
     '''
-    pass
+    return abs(current[0] - goal[0]) + abs(current[1] - goal[1])
 
-def AStarSearch(map, start, goal, heuristic = ManhattanHeuristic):
+
+def AStarSearch(map, start, goal, heuristic=ManhattanHeuristic):
     '''
     This method implements the A* search algorithm
     '''
     print("Not implemented yet")
-    return 0,0,0,0,0
+    return 0, 0, 0, 0, 0
+
 
 def print_algorithm_output(algorithm_output):
     cost, nodes_expanded, max_nodes, runtime, path = algorithm_output
@@ -192,13 +194,15 @@ def print_algorithm_output(algorithm_output):
     print("Runtime: " + str(runtime))
     print("Path: " + str(path))
 
+
 def runSearch(start, goal, map, searchType):
     if searchType == 'BFS':
-        print_algorithm_output(BreadthFirstSearch(map,start,goal))
+        print_algorithm_output(BreadthFirstSearch(map, start, goal))
     if searchType == 'IDS':
         print_algorithm_output(IterativeDeepeningSearch(map, start, goal))
     if searchType == 'AStar':
-        print_algorithm_output(AStarSearch(map,start,goal))
+        print_algorithm_output(AStarSearch(map, start, goal))
+
 
 def GenerateTestCase(rows, cols):
     '''
@@ -208,21 +212,23 @@ def GenerateTestCase(rows, cols):
     for _ in range(rows):
         row = []
         for _ in range(cols):
-            row.append(random.randint(0,5))
+            row.append(random.randint(0, 5))
         map.append(row)
-    start = (random.randint(0,rows-1),random.randint(0,cols-1))
+    start = (random.randint(0, rows-1), random.randint(0, cols-1))
     goal = start
     while start == goal:
-        goal = (random.randint(0,rows-1),random.randint(0,cols-1))
-    def saveTestCase(start,goal,map, filename):
+        goal = (random.randint(0, rows-1), random.randint(0, cols-1))
+
+    def saveTestCase(start, goal, map, filename):
         with open(filename, "w") as file:
             file.write(str(rows) + " " + str(cols) + "\n")
             file.write(" ".join(str(x) for x in start) + "\n")
             file.write(" ".join(str(x) for x in goal) + "\n")
             for row in map:
-                    file.write(" ".join(str(x) for x in row))
-                    file.write("\n")
-    saveTestCase(start,goal,map,"Map"+str(rows)+"x"+str(cols)+".txt")
+                file.write(" ".join(str(x) for x in row))
+                file.write("\n")
+    saveTestCase(start, goal, map, "Map"+str(rows)+"x"+str(cols)+".txt")
+
 
 if __name__ == '__main__':
     # searchTypes= ('BFS', 'IDS', 'AStar')
@@ -258,7 +264,12 @@ if __name__ == '__main__':
     print("*********************** 5x5 output ********************")
     start, goal, map = readMap("Testcases/Map5x5.txt")
 
-    print("\nITERATIVE DEEPENING Search: ")
+    print("\n-------------------------BREADTH FIRST Search: ")
+    print_algorithm_output(BreadthFirstSearch(map, start, goal))
+
+    start, goal, map = readMap("Testcases/Map5x5.txt")
+
+    print("\n-------------------------ITERATIVE DEEPENING Search: ")
     print_algorithm_output(IterativeDeepeningSearch(map, start, goal))
     '''
     print("*********************** 5x10 output ********************")
@@ -302,4 +313,3 @@ if __name__ == '__main__':
     print("\nA* Search: ")
     print_algorithm_output(AStarSearch(map, start, goal, ManhattanHeuristic))
     '''
-

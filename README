@@ -6,9 +6,9 @@
 
 ## Usage
 1. In a command line, ensure you are in the 'CS4320_AI_Assignment1' directory
-2. Enter the command 'python3 Pathfinding.py <test-filename> <search-type>', replacing <search-type> with 'BPS'.
+2. Enter the command 'python3 Pathfinding.py <test-filename> <search-type>', replacing <search-type> with 'BFS'.
 
-**BPS is the only search currently available. Available types in part 2 will be 'BPS', 'IDS', and 'AStar'
+**BFS is the only search currently available. Available types in part 2 will be 'BFS', 'IDS', and 'AStar'
 
 #IDS Not working 10/7/2023
 Since IDS requires you to do depth first search at the start node for every iteration, setting the value at the
@@ -17,3 +17,5 @@ This is because the start node and its initial neighbors will all get set to zer
 
 - 10/08/2023 added a potential solution of giving the start node a new copy of the original map at the start of every iteration.
 Unsure if it'll work in all tests
+
+-- 10/8/2023 giving a new copy of the original map is good for me, it makes sense as to why we need to do that. The main issue from your solution was to pass the deepcopy of the map to subsequent nodes, not just the copy. Interestingly, passing the copy of a 2d array creates a copy of the 1d array, meaning the element arrays are passed by reference. 
