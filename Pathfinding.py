@@ -231,35 +231,32 @@ def GenerateTestCase(rows, cols):
 
 
 if __name__ == '__main__':
-    # searchTypes= ('BFS', 'IDS', 'AStar')
-    # if len(sys.argv) != 3:
-    #     print("Usage: python Pathfinding.py <map_file> <search-type")
-    #     print("Available search types: BFS, IDS, AStar")
-    #     sys.exit(1)
-    # # generate test cases, run once and comment out
-    # if sys.argv[1] == "-G":
-    #     testCases = [(5, 5), (10, 10), (15, 15), (20, 20), (100, 100), (5, 10)]
-    #     for width, height in testCases:
-    #         GenerateTestCase(width, height)
-    #     sys.exit(0)
-    # target_dir = Path(sys.argv[1])
-    #
-    # if not target_dir.exists():
-    #     print("The target test file doesn't exist. Try again")
-    #     raise SystemExit(1)
-    # searchType = sys.argv[2]
-    # if searchType not in searchTypes:
-    #     print("Invalid Search Type. Try again. \n Available search types: BFS, IDS, AStar")
-    #     raise SystemExit(1)
-    #
-    # start, goal, map = readMap(target_dir)
-    # runSearch(start,goal,map,searchType)
-    '''
-    print("*********************** Instructions output ********************")
-    start, goal, map = readMap("Testcases/InstructionsMap.txt")
+    searchTypes= ('BFS', 'IDS', 'AStar')
+    if len(sys.argv) != 3:
+        print("Usage: python Pathfinding.py <map_file> <search-type")
+        print("Available search types: BFS, IDS, AStar")
+        sys.exit(1)
+    # generate test cases, run once and comment out
+    if sys.argv[1] == "-G":
+        testCases = [(5, 5), (10, 10), (15, 15), (20, 20), (100, 100), (5, 10)]
+        for width, height in testCases:
+            GenerateTestCase(width, height)
+        sys.exit(0)
+    target_dir = Path(sys.argv[1])
+    
+    if not target_dir.exists():
+        print("The target test file doesn't exist. Try again")
+        raise SystemExit(1)
+    searchType = sys.argv[2]
+    if searchType not in searchTypes:
+        print("Invalid Search Type. Try again. \n Available search types: BFS, IDS, AStar")
+        raise SystemExit(1)
+    
+    start, goal, map = readMap(target_dir)
+    runSearch(start,goal,map,searchType)
+    
 
-    print("\nBreadth First Search: ")
-    print_algorithm_output(BreadthFirstSearch(map, start, goal))
+
     '''
     print("*********************** 5x5 output ********************")
     start, goal, map = readMap("Testcases/Map5x5.txt")
@@ -271,7 +268,7 @@ if __name__ == '__main__':
 
     print("\n-------------------------ITERATIVE DEEPENING Search: ")
     print_algorithm_output(IterativeDeepeningSearch(map, start, goal))
-    '''
+
     print("*********************** 5x10 output ********************")
     start, goal, map = readMap("Testcases/Map5x10.txt")
 
