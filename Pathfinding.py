@@ -117,37 +117,50 @@ def IterativeDeepeningSearch(map, start, goal):
     '''
     # nodes_expanded will be derived from the length of the explored nodes set (seen)
     start_time = time.time()
-    max_nodes_memory = {'max_nodes': 0}
+    max_nodes_memory = [0]
     history = []
     # used to track the best solution path and cost so far
-    bestSolutionNode = None
-    bestSolutionCost = float('inf')
+    bestSolutionNode = []
+    bestSolutionCost = [float('inf')]
 
     startNode = Node(
         cur_cord=start,
         cost_so_far=map[start[0]][start[1]],
         cur_map=map
     )
-    def DepthLimitedSearch(start, goal, limit):
-        if start.isSolution(goal):
-            history.append(start)
+    def DepthLimitedSearch(current, goal, limit):
+        if current.isSolution(goal): #return end search when goal is found
+            history.append(current)
+            bestSolutionNode.append(current)
+            bestSolutionCost[0] = current.cost_so_far
             return True
-        if limit <= 0:
+        if limit <= 0: # we've reached our depth limit
             return False
-        history.append(start)
-        unvisited_neighbors = start.getNeighbors()
-        max_nodes_memory['max_nodes'] = max(max_nodes_memory['max_nodes'], len(unvisited_neighbors))
+        history.append(current)
+        unvisited_neighbors = current.getNeighbors()
+        max_nodes_memory[0] = max(max_nodes_memory[0], len(unvisited_neighbors))
+        ''' USED FOR TESTING
+        if limit < 5:
+            # print(f"currentNode={current.cur_cord}")
+            # print(f"currentMap={current.cur_map}")
+        '''
         for neighbor in unvisited_neighbors:
-            if (DepthLimitedSearch(neighbor, goal), goal, limit - 1):
+            # print(f"neighborNode={neighbor.cur_cord}") # used for testing
+            # check if any of the neighbors are the goal
+            if DepthLimitedSearch(neighbor, goal, limit - 1):
                 return True
         return False
     limit = 0
-    while time.time() < start_time+180:
+    while time.time() < start_time+180: # while runtime is less than 3 min increase the depth till a solution is found
         if DepthLimitedSearch(startNode, goal, limit):
             break
         limit += 1
+    runtime = (time.time() - start_time) * 1000
+    nodes_expanded = len(history)
+    if len(bestSolutionNode) and runtime < 180000:
+        return bestSolutionCost[0], nodes_expanded, max_nodes_memory, runtime, bestSolutionNode[0].getPath()
 
-    return 0
+    return -1, nodes_expanded, max_nodes_memory, runtime, None
 
 
 
@@ -206,41 +219,42 @@ def GenerateTestCase(rows, cols):
     saveTestCase(start,goal,map,"Map"+str(rows)+"x"+str(cols)+".txt")
 
 if __name__ == '__main__':
-    searchTypes= ('BFS', 'IDS', 'AStar')
-    if len(sys.argv) != 3:
-        print("Usage: python Pathfinding.py <map_file> <search-type")
-        print("Available search types: BFS, IDS, AStar")
-        sys.exit(1)
-    # generate test cases, run once and comment out
-    if sys.argv[1] == "-G":
-        testCases = [(5, 5), (10, 10), (15, 15), (20, 20), (100, 100), (5, 10)]
-        for width, height in testCases:
-            GenerateTestCase(width, height)
-        sys.exit(0)
-    target_dir = Path(sys.argv[1])
-
-    if not target_dir.exists():
-        print("The target test file doesn't exist. Try again")
-        raise SystemExit(1)
-    searchType = sys.argv[2]
-    if searchType not in searchTypes:
-        print("Invalid Search Type. Try again. \n Available search types: BFS, IDS, AStar")
-        raise SystemExit(1)
-
-    start, goal, map = readMap(target_dir)
-    runSearch(start,goal,map,searchType)
+    # searchTypes= ('BFS', 'IDS', 'AStar')
+    # if len(sys.argv) != 3:
+    #     print("Usage: python Pathfinding.py <map_file> <search-type")
+    #     print("Available search types: BFS, IDS, AStar")
+    #     sys.exit(1)
+    # # generate test cases, run once and comment out
+    # if sys.argv[1] == "-G":
+    #     testCases = [(5, 5), (10, 10), (15, 15), (20, 20), (100, 100), (5, 10)]
+    #     for width, height in testCases:
+    #         GenerateTestCase(width, height)
+    #     sys.exit(0)
+    # target_dir = Path(sys.argv[1])
+    #
+    # if not target_dir.exists():
+    #     print("The target test file doesn't exist. Try again")
+    #     raise SystemExit(1)
+    # searchType = sys.argv[2]
+    # if searchType not in searchTypes:
+    #     print("Invalid Search Type. Try again. \n Available search types: BFS, IDS, AStar")
+    #     raise SystemExit(1)
+    #
+    # start, goal, map = readMap(target_dir)
+    # runSearch(start,goal,map,searchType)
     '''
     print("*********************** Instructions output ********************")
     start, goal, map = readMap("Testcases/InstructionsMap.txt")
 
     print("\nBreadth First Search: ")
     print_algorithm_output(BreadthFirstSearch(map, start, goal))
-
+    '''
     print("*********************** 5x5 output ********************")
     start, goal, map = readMap("Testcases/Map5x5.txt")
 
-    print("\nBreadth First Search: ")
-    print_algorithm_output(BreadthFirstSearch(map, start, goal))
+    print("\nITERATIVE DEEPENING Search: ")
+    print_algorithm_output(IterativeDeepeningSearch(map, start, goal))
+    '''
     print("*********************** 5x10 output ********************")
     start, goal, map = readMap("Testcases/Map5x10.txt")
 

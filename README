@@ -10,3 +10,7 @@
 
 **BPS is the only search currently available. Available types in part 2 will be 'BPS', 'IDS', and 'AStar'
 
+#IDS Not working 10/7/2023
+Since IDS requires you to do depth first search at the start node for every iteration, setting the value at the
+current node's coordinate to zero when getNeighbors() is called will throw off the whole search.
+This is because the start node and its initial neighbors will all get set to zero within the first couple of iterations.
