@@ -15,13 +15,11 @@ Each pathfinding algorithm should return a tuple containing the following:
     5) Path coordinates
 '''
 
-
 import sys
 import time
 import random
 from pathlib import Path
 from copy import deepcopy
-
 
 class Node:
     def __init__(self, location, cost_so_far, cur_map, history=[], heuristic=0):
@@ -70,7 +68,6 @@ def readMap(filename):
             map.append([int(x) for x in line.split()])
         return start, goal, map
 
-
 def BreadthFirstSearch(map, start, goal, seen=set()):
     '''
     This method implements the breadth first search algorithm.
@@ -79,43 +76,35 @@ def BreadthFirstSearch(map, start, goal, seen=set()):
     # nodes_expanded will be derived from the length of the explored nodes set (seen)
     max_nodes_memory = 0
     start_time = time.time()
-
     # used to track the best solution path and cost so far
     bestSolutionNode = None
     bestSolutionCost = float('inf')
-
     startNode = Node(
         location=start,
         cost_so_far=0, # First node is 'free'
         cur_map=map
     )
-
     # will hold the unexplored neighbor nodes
     unvisited_neighbors = [startNode]
-
-    history = []  # will hold the explored nodes
+    seen=set() # will hold the explored nodes
     # break the loop when 3 minutes have passed or there are no more neighbors to visit
     while unvisited_neighbors and time.time() < start_time+180:
         node = unvisited_neighbors.pop(0)
-        history.append(node)
-
         if node.isSolution(goal):
             if node.cost_so_far < bestSolutionCost:
                 bestSolutionNode = node
                 bestSolutionCost = node.cost_so_far
             continue
-
         neighbors = node.getNeighbors()
         for neighbor in neighbors:
-            unvisited_neighbors.append(neighbor)
-
+            if neighbor.location not in seen:
+                seen.add(neighbor.location)
+                unvisited_neighbors.append(neighbor)
         max_nodes_memory = max(max_nodes_memory, len(unvisited_neighbors))
-
-    nodes_expanded = len(history)
+    nodes_expanded = len(seen)
     runtime = (time.time() - start_time) * 1000
     if bestSolutionNode and runtime < 180000:
         return bestSolutionCost, nodes_expanded, max_nodes_memory, runtime, bestSolutionNode.getPath()
-
     # no solution found
     return -1, nodes_expanded, max_nodes_memory, runtime, None
 
@@ -130,32 +119,24 @@ def IterativeDeepeningSearch(map: list, start, goal):
     # used to track the best solution path and cost so far
     bestSolutionNode = None
     foundSolution = False
-
     start_node = Node(
         location=start,
         cost_so_far=0, #first node is free
         cur_map=deepcopy(map)
     )
-
     def DepthLimitedSearch(current, goal, limit):
         if current.isSolution(goal):  # return end search when goal is found
             return True, current
-
         if limit < 0:  # we've reached our depth limit
             return False, None
-        
         history.append(current)
-        
         unvisited_neighbors = current.getNeighbors()
-
         for neighbor in unvisited_neighbors:
             # check if any of the neighbors are the goal
             isSolution, solutionNode = DepthLimitedSearch(neighbor, goal, limit - 1)
             if(isSolution):
                 return True, solutionNode
         return False, None
-
-
     limit = 0
     # while runtime is less than 3 min increase the depth till a solution is found
     while time.time() < start_time+180:
@@ -167,9 +148,7 @@ def IterativeDeepeningSearch(map: list, start, goal):
     nodes_expanded = len(history)
     if foundSolution:
         return bestSolutionNode.cost_so_far, nodes_expanded, len(bestSolutionNode.history), runtime, bestSolutionNode.getPath()
-
     return -1, nodes_expanded, limit, runtime, None
-
 
 def ManhattanHeuristic(map, current, goal):
     '''
@@ -177,14 +156,12 @@ def ManhattanHeuristic(map, current, goal):
     '''
     return abs(current[0] - goal[0]) + abs(current[1] - goal[1])
 
-
 def AStarSearch(map, start, goal, heuristic=ManhattanHeuristic):
     '''
     This method implements the A* search algorithm
     '''
     print("Not implemented yet")
     return 0, 0, 0, 0, 0
-
 
 def print_algorithm_output(algorithm_output):
     cost, nodes_expanded, max_nodes, runtime, path = algorithm_output
@@ -194,7 +171,6 @@ def print_algorithm_output(algorithm_output):
     print("Runtime: " + str(runtime))
     print("Path: " + str(path))
 
-
 def runSearch(start, goal, map, searchType):
     if searchType == 'BFS':
         print_algorithm_output(BreadthFirstSearch(map, start, goal))
@@ -202,7 +178,6 @@ def runSearch(start, goal, map, searchType):
         print_algorithm_output(IterativeDeepeningSearch(map, start, goal))
     if searchType == 'AStar':
         print_algorithm_output(AStarSearch(map, start, goal))
-
 
 def GenerateTestCase(rows, cols):
     '''
@@ -229,21 +204,21 @@ def GenerateTestCase(rows, cols):
                 file.write("\n")
     saveTestCase(start, goal, map, "Map"+str(rows)+"x"+str(cols)+".txt")
 
-
 if __name__ == '__main__':
+    
+    # generate test cases, run once
+    if len(sys.argv)>1 and sys.argv[1] == "-G":
+        testCases = [(5, 5), (10, 10), (15, 15), (20, 20), (100, 100), (5, 10)]
+        for width, height in testCases:
+            GenerateTestCase(width, height)
+        sys.exit(0)
+    #should be run with python3 Pathfinding.py <map_file> <search-type>
     searchTypes= ('BFS', 'IDS', 'AStar')
     if len(sys.argv) != 3:
         print("Usage: python Pathfinding.py <map_file> <search-type")
         print("Available search types: BFS, IDS, AStar")
         sys.exit(1)
-    # generate test cases, run once and comment out
-    if sys.argv[1] == "-G":
-        testCases = [(5, 5), (10, 10), (15, 15), (20, 20), (100, 100), (5, 10)]
-        for width, height in testCases:
-            GenerateTestCase(width, height)
-        sys.exit(0)
-    target_dir = Path(sys.argv[1])
-    
+    target_dir = Path(sys.argv[1])    
     if not target_dir.exists():
         print("The target test file doesn't exist. Try again")
         raise SystemExit(1)
@@ -251,11 +226,8 @@ if __name__ == '__main__':
     if searchType not in searchTypes:
         print("Invalid Search Type. Try again. \n Available search types: BFS, IDS, AStar")
         raise SystemExit(1)
-    
     start, goal, map = readMap(target_dir)
     runSearch(start,goal,map,searchType)
-    
-
 
     '''
     print("*********************** 5x5 output ********************")
