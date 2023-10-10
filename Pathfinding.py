@@ -70,7 +70,7 @@ def readMap(filename):
             map.append([int(x) for x in line.split()])
         return start, goal, map
 
-def BreadthFirstSearch(map, start, goal, seen=set()):
+def BreadthFirstSearch(map, start, goal):
     '''
     This method implements the breadth first search algorithm.
     It is modified to look for the least-costly path instead of the first path to the goal.
@@ -88,10 +88,11 @@ def BreadthFirstSearch(map, start, goal, seen=set()):
     )
     # will hold the unexplored neighbor nodes
     unvisited_neighbors = [startNode]
-    seen=set() # will hold the explored nodes
+    visited_nodes=[]# will hold the explored nodes
     # break the loop when 3 minutes have passed or there are no more neighbors to visit
     while unvisited_neighbors and time.time() < start_time+180:
         node = unvisited_neighbors.pop(0)
+        visited_nodes.append(node)
         if node.isSolution(goal):
             if node.cost_so_far < bestSolutionCost:
                 bestSolutionNode = node
@@ -99,11 +100,9 @@ def BreadthFirstSearch(map, start, goal, seen=set()):
             continue
         neighbors = node.getNeighbors()
         for neighbor in neighbors:
-            if neighbor.location not in seen:
-                seen.add(neighbor.location)
-                unvisited_neighbors.append(neighbor)
+            unvisited_neighbors.append(neighbor)
         max_nodes_memory = max(max_nodes_memory, len(unvisited_neighbors))
-    nodes_expanded = len(seen)
+    nodes_expanded = len(visited_nodes)
     runtime = (time.time() - start_time) * 1000
     if bestSolutionNode and runtime < 180000:
         return bestSolutionCost, nodes_expanded, max_nodes_memory, runtime, bestSolutionNode.getPath()
