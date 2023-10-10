@@ -20,6 +20,8 @@ import time
 import random
 from pathlib import Path
 from copy import deepcopy
+from queue import PriorityQueue
+
 
 class Node:
     def __init__(self, location, cost_so_far, cur_map, history=[], heuristic=0):
@@ -154,12 +156,39 @@ def ManhattanHeuristic(map, current, goal):
     '''
     This method calculates the Manhattan distance heuristic between the current state and the goal
     '''
+
     return abs(current[0] - goal[0]) + abs(current[1] - goal[1])
 
 def AStarSearch(map, start, goal, heuristic=ManhattanHeuristic):
     '''
     This method implements the A* search algorithm
     '''
+    def calculateEstimatedCost(cost,heuristic_value):
+        return cost + heuristic_value
+
+
+    start_node = Node(
+        location=start,
+        cost_so_far=0,  # first node is free
+        cur_map=map,
+
+    )
+
+    unvisited_nodes = PriorityQueue()
+    unvisited_nodes.put((0,start_node)) #push start node into priority queue
+    while not unvisited_nodes.empty():
+        current_node = unvisited_nodes.get() #pop lowest estimated cost from priority queue
+        if current_node[1].isSolution(goal):
+            return current_node[1]
+        neighbors = current_node[1].getNeighbors()
+
+        # Get manhattan heuristic, calculate estimated cost (f(n)), and store (estimated cost, node) in priority queue
+        for n in neighbors:
+            n.heuristic = heuristic(n.cur_map, n.location,goal)
+            n_estimated_cost = calculateEstimatedCost(n.cost_so_far,n.heuristic)
+            unvisited_nodes.put((n_estimated_cost, n))
+
+
     print("Not implemented yet")
     return 0, 0, 0, 0, 0
 
