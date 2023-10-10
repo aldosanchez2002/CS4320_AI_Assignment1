@@ -10,18 +10,8 @@
 
 **BFS is the only search currently available. Available types in part 2 will be 'BFS', 'IDS', and 'AStar'
 
-#IDS Not working 10/7/2023
-Since IDS requires you to do depth first search at the start node for every iteration, setting the value at the
-current node's coordinate to zero when getNeighbors() is called will throw off the whole search.
-This is because the start node and its initial neighbors will all get set to zero within the first couple of iterations.
-
-- 10/08/2023 added a potential solution of giving the start node a new copy of the original map at the start of every iteration.
-Unsure if it'll work in all tests
-
--- 10/8/2023 giving a new copy of the original map is good for me, it makes sense as to why we need to do that. The main issue from your solution was to pass the deepcopy of the map to subsequent nodes, not just the copy. Interestingly, passing the copy of a 2d array creates a copy of the 1d array, meaning the element arrays are passed by reference. 
-
-# A* Framework - getting priorityQueue Issue 10/9/23
-- Set up basics for A* (did not implement metrics variables yet)
-- Getting this error after a few iterations of putting values into Priority queue:
-  - TypeError: '<' not supported between instances of 'Node' and 'Node'
-  - I can't tell why I'm getting this error because I'm using a tuple like the documentation suggets: (estimated cost, cur_node)
+# A* is working (I think) - 10/10/2023
+- Finished A* implementation
+- Please look at the __lt__, __gt__, __eq__ methods in Node. Idk if I did them right. 
+They're needed to compare Nodes when inserting into PriorityQueue and there's another tuple w/ the same f(n)
+- Please look at how max_nodes_expanded and nodes_expanded is calculated, I'm not sure if I did it right

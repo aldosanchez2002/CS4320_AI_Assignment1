@@ -56,6 +56,13 @@ class Node:
 
     def __str__(self) -> str:
         return f"LOCATION: {self.location}. MAP, "
+    def __eq__(self, other):
+        return self.location == other.location
+    def __lt__(self, other):
+        return self.location < other.location
+    def __gt__ (self, other):
+        return self. location > other.location
+
 
 def readMap(filename):
     '''
@@ -172,13 +179,21 @@ def AStarSearch(map, start, goal, heuristic=ManhattanHeuristic):
         cur_map=map,
 
     )
+    history = []
+    start_time = time.time()
+    max_nodes_expanded = 0
 
     unvisited_nodes = PriorityQueue()
-    unvisited_nodes.put((0,start_node)) #push start node into priority queue
-    while not unvisited_nodes.empty():
+    unvisited_nodes.put((0, start_node))  # push start node into priority queue
+
+    while not unvisited_nodes.empty() and time.time() < start_time +180:
         current_node = unvisited_nodes.get() #pop lowest estimated cost from priority queue
+        history.append(current_node[1])
         if current_node[1].isSolution(goal):
-            return current_node[1]
+            total_cost = current_node[1].cost_so_far
+            nodes_expanded = len(history)
+            runtime = (time.time() - start_time) * 1000
+            return total_cost, nodes_expanded, max_nodes_expanded, runtime, current_node[1].history
         neighbors = current_node[1].getNeighbors()
 
         # Get manhattan heuristic, calculate estimated cost (f(n)), and store (estimated cost, node) in priority queue
@@ -186,10 +201,9 @@ def AStarSearch(map, start, goal, heuristic=ManhattanHeuristic):
             n.heuristic = heuristic(n.cur_map, n.location,goal)
             n_estimated_cost = calculateEstimatedCost(n.cost_so_far,n.heuristic)
             unvisited_nodes.put((n_estimated_cost, n))
+        max_nodes_expanded = max(max_nodes_expanded, len(unvisited_nodes.queue))
 
-
-    print("Not implemented yet")
-    return 0, 0, 0, 0, 0
+    return -1, len(history), max_nodes_expanded, time.time() - start_time * 1000, None
 
 def print_algorithm_output(algorithm_output):
     cost, nodes_expanded, max_nodes, runtime, path = algorithm_output
