@@ -34,7 +34,7 @@ class Node:
     def getNeighbors(self):
         neighbors = []
         next_map = deepcopy(self.cur_map)
-        next_map[self.location[0]][self.location[1]] = 0
+        next_map[self.location[0]][self.location[1]] = 0 # used for repeat-state checking
 
         # get coords that are right, left, down and up
         for i, j in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
@@ -56,6 +56,8 @@ class Node:
 
     def __str__(self) -> str:
         return f"LOCATION: {self.location}. MAP, "
+
+    # required for use of PriorityQueue in A* search method
     def __eq__(self, other):
         return self.location == other.location
     def __lt__(self, other):
@@ -135,6 +137,8 @@ def IterativeDeepeningSearch(map: list, start, goal):
     def DepthLimitedSearch(current, goal, limit):
         if current.isSolution(goal):  # return end search when goal is found
             return True, current
+        if time.time() > start_time + 180:
+            return False, None
         if limit < 0:  # we've reached our depth limit
             return False, None
         history.append(current)
@@ -158,7 +162,7 @@ def IterativeDeepeningSearch(map: list, start, goal):
         return bestSolutionNode.cost_so_far, nodes_expanded, len(bestSolutionNode.history), runtime, bestSolutionNode.getPath()
     return -1, nodes_expanded, limit, runtime, None
 
-def ManhattanHeuristic(map, current, goal):
+def ManhattanHeuristic(current, goal):
     '''
     This method calculates the Manhattan distance heuristic between the current state and the goal
     '''
@@ -177,7 +181,6 @@ def AStarSearch(map, start, goal, heuristic=ManhattanHeuristic):
         location=start,
         cost_so_far=0,  # first node is free
         cur_map=map,
-
     )
     history = []
     start_time = time.time()
@@ -193,7 +196,7 @@ def AStarSearch(map, start, goal, heuristic=ManhattanHeuristic):
             total_cost = current_node[1].cost_so_far
             nodes_expanded = len(history)
             runtime = (time.time() - start_time) * 1000
-            return total_cost, nodes_expanded, max_nodes_expanded, runtime, current_node[1].history
+            return total_cost, nodes_expanded, max_nodes_expanded, runtime, current_node[1].getPath()
         neighbors = current_node[1].getNeighbors()
 
         # Get manhattan heuristic, calculate estimated cost (f(n)), and store (estimated cost, node) in priority queue
@@ -203,7 +206,7 @@ def AStarSearch(map, start, goal, heuristic=ManhattanHeuristic):
             unvisited_nodes.put((n_estimated_cost, n))
         max_nodes_expanded = max(max_nodes_expanded, len(unvisited_nodes.queue))
 
-    return -1, len(history), max_nodes_expanded, time.time() - start_time * 1000, None
+    return -1, len(history), max_nodes_expanded, (time.time() - start_time) * 1000, None
 
 def print_algorithm_output(algorithm_output):
     cost, nodes_expanded, max_nodes, runtime, path = algorithm_output
