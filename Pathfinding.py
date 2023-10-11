@@ -5,14 +5,6 @@ Fall 2023
 David Dominguez
 Lianna Estrada
 Aldo Sanchez
-
-
-Each pathfinding algorithm should return a tuple containing the following:
-    1) Cost of the path
-    2) Amount Nodes Expanded
-    3) Maximum number of nodes held in memory
-    4) Runtime of the algorithm in milliseconds
-    5) Path coordinates
 '''
 
 import sys
@@ -87,9 +79,11 @@ def BreadthFirstSearch(map, start, goal):
     # nodes_expanded will be derived from the length of the explored nodes set (seen)
     max_nodes_memory = 0
     start_time = time.time()
+
     # used to track the best solution path and cost so far
     bestSolutionNode = None
     bestSolutionCost = float('inf')
+
     startNode = Node(
         location=start,
         cost_so_far=0, # First node is 'free'
@@ -98,6 +92,7 @@ def BreadthFirstSearch(map, start, goal):
     # will hold the unexplored neighbor nodes
     unvisited_neighbors = [startNode]
     visited_nodes=[]# will hold the explored nodes
+
     # break the loop when 3 minutes have passed or there are no more neighbors to visit
     while unvisited_neighbors and time.time() < start_time+180:
         node = unvisited_neighbors.pop(0)
@@ -121,11 +116,12 @@ def IterativeDeepeningSearch(map: list, start, goal):
     '''
     This method implements the iterative deepening search algorithm
     '''
-    # nodes_expanded will be derived from the length of the explored nodes set (seen)
+
+    # nodes_expanded will be derived from the length of history
     start_time = time.time()
-    max_nodes_memory = 0
     history = []
-    # used to track the best solution path and cost so far
+
+    # used to track the best solution path and a flag indicating if a solution was found
     bestSolutionNode = None
     foundSolution = False
     start_node = Node(
@@ -136,7 +132,7 @@ def IterativeDeepeningSearch(map: list, start, goal):
     def DepthLimitedSearch(current, goal, limit):
         if current.isSolution(goal):  # return end search when goal is found
             return True, current
-        if time.time() > start_time + 180:
+        if time.time() > (start_time + 180):
             return False, None
         if limit < 0:  # we've reached our depth limit
             return False, None
@@ -148,7 +144,9 @@ def IterativeDeepeningSearch(map: list, start, goal):
             if(isSolution):
                 return True, solutionNode
         return False, None
+
     limit = 0
+
     # while runtime is less than 3 min increase the depth till a solution is found
     while time.time() < start_time+180:
         foundSolution, bestSolutionNode =  DepthLimitedSearch(start_node, goal, limit)
@@ -165,7 +163,6 @@ def ManhattanHeuristic(current, goal):
     '''
     This method calculates the Manhattan distance heuristic between the current state and the goal
     '''
-
     return abs(current[0] - goal[0]) + abs(current[1] - goal[1])
 
 def AStarSearch(map, start, goal, heuristic=ManhattanHeuristic):
@@ -179,7 +176,7 @@ def AStarSearch(map, start, goal, heuristic=ManhattanHeuristic):
     )
     history = []
     start_time = time.time()
-    max_nodes_expanded = 0
+    max_nodes_memory = 0
 
     unvisited_nodes = PriorityQueue()
     unvisited_nodes.put((0, start_node))  # push start node into priority queue
@@ -191,18 +188,19 @@ def AStarSearch(map, start, goal, heuristic=ManhattanHeuristic):
             total_cost = current_node[1].cost_so_far
             nodes_expanded = len(history)
             runtime = (time.time() - start_time) * 1000
-            return total_cost, nodes_expanded, max_nodes_expanded, runtime, current_node[1].getPath()
+            return total_cost, nodes_expanded, max_nodes_memory, runtime, current_node[1].history
         neighbors = current_node[1].getNeighbors()
 
         # Get manhattan heuristic, calculate estimated cost (f(n)), and store (estimated cost, node) in priority queue
         for n in neighbors:
-            n.heuristic = heuristic(n.cur_map, n.location,goal)
+            n.heuristic = heuristic(n.location,goal)
             n_estimated_cost = n.cost_so_far+n.heuristic
             unvisited_nodes.put((n_estimated_cost, n))
-        max_nodes_expanded = max(max_nodes_expanded, len(unvisited_nodes.queue))
+        max_nodes_memory = max(max_nodes_memory, len(unvisited_nodes.queue))
 
-    return -1, len(history), max_nodes_expanded, (time.time() - start_time) * 1000, None
+    return -1, len(history), max_nodes_memory, (time.time() - start_time) * 1000, None
 
+# This method prints out the result of the search
 def print_algorithm_output(algorithm_output):
     cost, nodes_expanded, max_nodes, runtime, path = algorithm_output
     print("Cost: " + str(cost))
@@ -211,6 +209,7 @@ def print_algorithm_output(algorithm_output):
     print("Runtime: " + str(runtime))
     print("Path: " + str(path))
 
+# This method runs the given search type
 def runSearch(start, goal, map, searchType):
     if searchType == 'BFS':
         print_algorithm_output(BreadthFirstSearch(map, start, goal))
@@ -252,7 +251,7 @@ if __name__ == '__main__':
         for width, height in testCases:
             GenerateTestCase(width, height)
         sys.exit(0)
-    #should be run with python3 Pathfinding.py <map_file> <search-type>
+    #should be run with python3 Pathfinding.py <test-file-path> <search-type>
     searchTypes= ('BFS', 'IDS', 'AStar')
     if len(sys.argv) != 3:
         print("Usage: python Pathfinding.py <map_file> <search-type")
@@ -268,57 +267,3 @@ if __name__ == '__main__':
         raise SystemExit(1)
     start, goal, map = readMap(target_dir)
     runSearch(start,goal,map,searchType)
-
-    '''
-    print("*********************** 5x5 output ********************")
-    start, goal, map = readMap("Testcases/Map5x5.txt")
-
-    print("\n-------------------------BREADTH FIRST Search: ")
-    print_algorithm_output(BreadthFirstSearch(map, start, goal))
-
-    start, goal, map = readMap("Testcases/Map5x5.txt")
-
-    print("\n-------------------------ITERATIVE DEEPENING Search: ")
-    print_algorithm_output(IterativeDeepeningSearch(map, start, goal))
-
-    print("*********************** 5x10 output ********************")
-    start, goal, map = readMap("Testcases/Map5x10.txt")
-
-    print("\nBreadth First Search: ")
-    print_algorithm_output(BreadthFirstSearch(map, start, goal))
-
-    print("*********************** 10x10 output ********************")
-
-    start, goal, map = readMap("Testcases/Map10x10.txt")
-
-    print("\nBreadth First Search: ")
-    print_algorithm_output(BreadthFirstSearch(map, start, goal))
-
-
-    print("*********************** 15x15 output ********************")
-    start, goal, map = readMap("Testcases/Map15x15.txt")
-
-    print("\nBreadth First Search: ")
-    print_algorithm_output(BreadthFirstSearch(map, start, goal))
-
-    print("*********************** 20x20 output ********************")
-    start, goal, map = readMap("Testcases/Map20x20.txt")
-
-    print("\nBreadth First Search: ")
-    print_algorithm_output(BreadthFirstSearch(map, start, goal))
-
-    print("*********************** 100x100 output ********************")
-    start, goal, map = readMap("Testcases/Map100x100.txt")
-
-    print("\nBreadth First Search: ")
-    print_algorithm_output(BreadthFirstSearch(map, start, goal))
-
-
-    sys.exit(0)
-    
-    print("\nIterative Deepening Search: ")
-    print_algorithm_output(IterativeDeepeningSearch(map, start, goal))
-
-    print("\nA* Search: ")
-    print_algorithm_output(AStarSearch(map, start, goal, ManhattanHeuristic))
-    '''

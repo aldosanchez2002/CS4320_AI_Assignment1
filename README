@@ -6,12 +6,6 @@
 
 ## Usage
 1. In a command line, ensure you are in the 'CS4320_AI_Assignment1' directory
-2. Enter the command 'python3 Pathfinding.py <test-filename> <search-type>', replacing <search-type> with 'BFS'.
+2. Enter the command 'python3 Pathfinding.py <test-file-path> <search-type>', replacing <search-type> with one of the available algorithms defined below.
 
-**BFS is the only search currently available. Available types in part 2 will be 'BFS', 'IDS', and 'AStar'
-
-# A* is working (I think) - 10/10/2023
-- Finished A* implementation
-- Please look at the __lt__, __gt__, __eq__ methods in Node. Idk if I did them right. 
-They're needed to compare Nodes when inserting into PriorityQueue and there's another tuple w/ the same f(n)
-- Please look at how max_nodes_expanded and nodes_expanded is calculated, I'm not sure if I did it right
+Available search types are:  'BFS', 'IDS', and 'AStar'
