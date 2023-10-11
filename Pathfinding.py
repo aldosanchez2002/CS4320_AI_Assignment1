@@ -28,7 +28,7 @@ class Node:
         self.location = location
         self.cost_so_far = cost_so_far
         self.cur_map = cur_map
-        self.history = history + [str(location)]  # used to store solution path
+        self.history = history + [location]  # used to store solution path
         self.heuristic = heuristic
 
     def getNeighbors(self):
@@ -103,10 +103,9 @@ def BreadthFirstSearch(map, start, goal):
         node = unvisited_neighbors.pop(0)
         visited_nodes.append(node)
         if node.isSolution(goal):
-            if node.cost_so_far < bestSolutionCost:
-                bestSolutionNode = node
-                bestSolutionCost = node.cost_so_far
-            continue
+            bestSolutionNode = node
+            bestSolutionCost = node.cost_so_far
+            break
         neighbors = node.getNeighbors()
         for neighbor in neighbors:
             unvisited_neighbors.append(neighbor)
@@ -173,10 +172,6 @@ def AStarSearch(map, start, goal, heuristic=ManhattanHeuristic):
     '''
     This method implements the A* search algorithm
     '''
-    def calculateEstimatedCost(cost,heuristic_value):
-        return cost + heuristic_value
-
-
     start_node = Node(
         location=start,
         cost_so_far=0,  # first node is free
@@ -202,7 +197,7 @@ def AStarSearch(map, start, goal, heuristic=ManhattanHeuristic):
         # Get manhattan heuristic, calculate estimated cost (f(n)), and store (estimated cost, node) in priority queue
         for n in neighbors:
             n.heuristic = heuristic(n.cur_map, n.location,goal)
-            n_estimated_cost = calculateEstimatedCost(n.cost_so_far,n.heuristic)
+            n_estimated_cost = n.cost_so_far+n.heuristic
             unvisited_nodes.put((n_estimated_cost, n))
         max_nodes_expanded = max(max_nodes_expanded, len(unvisited_nodes.queue))
 
